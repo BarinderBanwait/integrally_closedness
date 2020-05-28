@@ -2,6 +2,7 @@ import ring_theory.noetherian
 import ring_theory.integral_closure
 import ring_theory.adjoin
 import ring_theory.algebra
+import linear_algebra.basic
 
 universes u v
 
@@ -33,6 +34,20 @@ begin
   split,
   intros h r s,
   intro k,
+  unfold is_integrally_closed at h,
+  specialize h r s,
+  intro m,
+  apply h,
+  split,
+  exact k,
+  cases m with n m1,
+  cases m1 with f m2,
+  cases m2 with hf m3,
+  use n,
+  rw ideal.span,
+  sorry,
+  sorry,
+  
 end
 
 lemma fundamental_theorem_integrally_closedness (R : Type u) (A : Type v) [integral_domain R] 
