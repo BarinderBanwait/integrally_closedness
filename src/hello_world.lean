@@ -11,8 +11,9 @@ variables [comm_ring R] [comm_ring A]
 variables [algebra R A]
 variables i : ℕ
 variables (K : Type*)
-open ideal
+open submodule
 open function
+open finset
 open_locale big_operators
 
 structure is_integrally_closed_in (R : Type u) (A : Type v) [comm_ring R] [comm_ring A] 
@@ -25,7 +26,7 @@ def my_set (R) [integral_domain R] (r : R) (s : R) (n : ℕ) :=
 
 def is_integrally_closed (R) [integral_domain R] : Prop :=
 ∀ (r : R) (s : R), (s ≠ 0) ∧ (∃ n : ℕ , 
-r^n ∈ span (my_set R r s n)) → s ∣ r
+r^n ∈ span R (my_set R r s n)) → s ∣ r
 
 lemma equiv_johan_absolute (R) [integral_domain R] :
   is_integrally_closed R ↔ ∀ ⦃r s : R⦄, s ≠ 0 → (∃ (n : ℕ) (f : ℕ → R) (hf : f 0 = 1), 
@@ -44,11 +45,34 @@ begin
   cases m1 with f m2,
   cases m2 with hf m3,
   use n,
-  rw ideal.span,
+  rw mem_span,
+  intro p,
+  intro p_H,
   sorry,
   sorry,
-  
 end
+
+open submodule
+
+lemma mwe (R) [integral_domain R] (n : ℕ) (f : ℕ → R) (hf : f 0 = 1) : ∀ ⦃r s : R⦄, s ≠ 0 → 
+  ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0 → 
+  r^n ∈ span R (my_set R r s n) :=
+begin
+  intros r s,
+  intro s_non_zero,
+  intro H,
+  rw mem_span,
+  intro p,
+  intro p_H,
+  sorry,
+end
+
+
+
+
+  
+  
+
 
 lemma fundamental_theorem_integrally_closedness (R : Type u) (A : Type v) [integral_domain R] 
 [comm_ring A] [algebra R A] (H : fraction_map R A):
