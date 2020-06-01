@@ -12,11 +12,18 @@ import linear_algebra.basic
 /-!
 # Integrally closedness
 
-Description of this stuff.
+Let R ⊆ A be an extension of integral domains.
 
 ## Main definitions
 
-Here.
+* `is_integrally_closed_in R A : Prop` is the assertion that `R` is integrally closed in `A`. It is
+   a structure, implemented as the predicate that all elements of `A` that are integral over `R` 
+   already belong to `R`.
+
+* `is_integrally_closed R` is the definition that `R` is integrally closed in an absolute sense.
+   This is implemented as the following implication: if for all `r` and `s` in `R` with `s ≠ 0`, 
+   `r^n ∈ ⟨ r^{n-1}s, ⋯ , s^n ⟩ 
+
 
 ## Main statements
 
@@ -101,8 +108,23 @@ begin
   simp at H,
   rw hf at H,
   simp at H,
-  let  B : (R) := ∑ (x : ℕ × ℕ) in (nat.antidiagonal n).erase p', f x.fst * r ^ x.snd * s ^ x.fst,
-  rw B at H,
+  have KL : r^n =  ∑ (x : ℕ × ℕ) in (nat.antidiagonal n).erase p', f x.fst * r ^ x.snd * s ^ x.fst,
+  {
+    -- exact eq_neg_of_add_eq_zero H,
+    sorry,
+  },
+  rw KL,
+  rw my_set,
+  rw mem_span,
+  intro p,
+  intro p_H,
+  apply sum_mem,
+  intro c,
+  intro c_H,
+  
+  
+  -- let  B := ∑ (x : ℕ × ℕ) in (nat.antidiagonal n).erase p', f x.fst * r ^ x.snd * s ^ x.fst,
+  -- rw B at H,
   -- have HJ : r ^ n = 0 - ∑ (x : ℕ × ℕ) in (nat.antidiagonal n).erase p', f x.fst * r ^ x.snd * s ^ x.fst,
   -- {
   --   rw add_eq_of_eq_sub,
