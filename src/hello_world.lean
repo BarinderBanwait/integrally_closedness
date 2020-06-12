@@ -58,8 +58,11 @@ structure is_integrally_closed_in (R : Type u) (A : Type v) [comm_ring R] [comm_
 (inj : injective (algebra_map R A))
 (closed : ∀ (a : A), is_integral R a → ∃  r : R, algebra_map R A r = a)
 
+-- def my_set (R) [integral_domain R] (r : R) (s : R) (n : ℕ) := 
+-- { x | ∃ (i:ℕ ) (h : 0≤ i) (h2 :i≤ n-1), x = r^(n-1-i) *s^(i+1) }
+
 def my_set (R) [integral_domain R] (r : R) (s : R) (n : ℕ) := 
-{ x | ∃ (i:ℕ ) (h : 0≤ i) (h2 :i≤ n-1), x = r^(n-1-i) *s^(i+1) }
+{ x | ∃ (c : ℕ × ℕ) (hy: c ∈ (finset.nat.antidiagonal n).erase ⟨0, n⟩), x = r ^ c.2 * s ^ c.1 }
 
 def is_integrally_closed (R) [integral_domain R] : Prop :=
 ∀ (r : R) (s : R), (s ≠ 0) ∧ (∃ n : ℕ , 
@@ -85,6 +88,7 @@ begin
   rw mem_span,
   intro p,
   intro p_H,
+  rw my_set at p_H,
   sorry,
   sorry,
 end
@@ -108,42 +112,58 @@ begin
   simp at H,
   rw hf at H,
   simp at H,
-  have KL : r^n =  ∑ (x : ℕ × ℕ) in (nat.antidiagonal n).erase p', f x.fst * r ^ x.snd * s ^ x.fst,
+  have KL : r^n = -∑ (x : ℕ × ℕ) in (nat.antidiagonal n).erase p', f x.fst * r ^ x.snd * s ^ x.fst,
   {
-    -- exact eq_neg_of_add_eq_zero H,
-    sorry,
+    exact eq_neg_of_add_eq_zero H,
   },
   rw KL,
   rw my_set,
   rw mem_span,
   intro p,
   intro p_H,
+  rw ideal.neg_mem_iff p,
   apply sum_mem,
   intro c,
   intro c_H,
-  
-  
-  -- let  B := ∑ (x : ℕ × ℕ) in (nat.antidiagonal n).erase p', f x.fst * r ^ x.snd * s ^ x.fst,
-  -- rw B at H,
-  -- have HJ : r ^ n = 0 - ∑ (x : ℕ × ℕ) in (nat.antidiagonal n).erase p', f x.fst * r ^ x.snd * s ^ x.fst,
-  -- {
-  --   rw add_eq_of_eq_sub,
-  -- }
-
-  -- have K : r^n = (range n).sum (λ i, -1 * f (i+1) * r^(n-i-1) * s^(1+i)),
-  -- {sorry,
-  
-  -- },
-  -- rw K,
-  -- rw mem_span,
-  -- intro p,
-  -- intro p_H,
-  -- apply submodule.sum_mem,
-  -- rw my_set at p_H,
-  -- intro c,
-  -- intro C,
-  -- sorry,
+  have x_in_my_set : r ^ c.snd * s ^ c.fst ∈ {x : R | ∃ (c : ℕ × ℕ) (hy : c ∈ (nat.antidiagonal n).erase (0, n)), x = r ^ c.snd * s ^ c.fst},
+  {
+    simp,
+    use c.fst,
+    use c.snd,
+    split,
+    split,
+    intro something,
+    by_contradiction HAPPY,
+    have obv : c = p',
+    {
+      exact prod.ext something HAPPY,
+    },
+    rw obv at c_H,
+    rw mem_erase at c_H,
+    cases c_H,
+    contradiction,
+    rw ← finset.nat.mem_antidiagonal,
+    rw mem_erase at c_H,
+    cases c_H with c_H_1 c_H_2,
+    exact c_H_2,
+    refl,
+  },
+  have x_in_p : r ^ c.snd * s ^ c.fst ∈ ↑p,
+  {
+    exact set.mem_of_mem_of_subset x_in_my_set p_H,
+  },
+  rw mul_assoc,
+  exact p.smul (f c.fst) x_in_p,
 end
+
+open set
+
+variable {α : Type u}
+example {x : α} (A B : set α) (H : A ⊆ B)(hx : x ∈ A) : x ∈ B :=
+begin
+  exact H hx,
+end
+
 
 
 lemma fundamental_theorem_integrally_closedness (R : Type u) (A : Type v) [integral_domain R] 
@@ -153,7 +173,8 @@ begin
   split,
   rw equiv_johan_absolute,
   intro H,
-
+  sorry,
+  sorry,
 end
 
 
