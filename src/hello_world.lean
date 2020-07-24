@@ -68,31 +68,6 @@ def is_integrally_closed (R) [integral_domain R] : Prop :=
 ∀ (r : R) (s : R), (s ≠ 0) ∧ (∃ n : ℕ , 
 r^n ∈ span R (my_set R r s n)) → s ∣ r
 
-lemma equiv_johan_absolute (R) [integral_domain R] :
-  is_integrally_closed R ↔ ∀ ⦃r s : R⦄, s ≠ 0 → (∃ (n : ℕ) (f : ℕ → R) (hf : f 0 = 1), 
-  ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0) → s ∣ r :=
-begin
-  split,
-  intros h r s,
-  intro k,
-  unfold is_integrally_closed at h,
-  specialize h r s,
-  intro m,
-  apply h,
-  split,
-  exact k,
-  cases m with n m1,
-  cases m1 with f m2,
-  cases m2 with hf m3,
-  use n,
-  rw mem_span,
-  intro p,
-  intro p_H,
-  rw my_set at p_H,
-  sorry,
-  sorry,
-end
-
 open submodule
 
 lemma mwe (R) [integral_domain R] (n : ℕ) (f : ℕ → R) (hf : f 0 = 1) : ∀ ⦃r s : R⦄, s ≠ 0 → 
@@ -153,17 +128,71 @@ begin
     exact set.mem_of_mem_of_subset x_in_my_set p_H,
   },
   rw mul_assoc,
-  exact p.smul (f c.fst) x_in_p,
+  exact p.smul_mem (f c.fst) x_in_p,  
 end
 
-open set
-
-variable {α : Type u}
-example {x : α} (A B : set α) (H : A ⊆ B)(hx : x ∈ A) : x ∈ B :=
+lemma lin_comb_mem (R) [integral_domain R] (n : ℕ) (A r s : R) (s_non_zero : s ≠ 0) : A ∈ span R (my_set R r s n) → ∃ (f : ℕ → R) (h_f: f 0 = 1), 
+  ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0 :=
 begin
-  exact H hx,
+  -- started this in sandbox.lean, take a look there
+  sorry,
 end
 
+
+lemma mwe_deluxe (R) [integral_domain R] (n : ℕ) {r s : R} (h_s : s ≠ 0) : 
+  r^n ∈ span R (my_set R r s n) ↔ ∃ (f : ℕ → R) (hf : f 0 = 1), ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0 :=
+begin
+  split,
+  intro H,
+  apply lin_comb_mem,
+  exact h_s,
+  exact H,
+  intro k,
+  cases k with f B,
+  cases B with C HC,
+  apply mwe,
+  exact C,
+  exact h_s,
+  exact HC,
+end
+
+lemma equiv_johan_absolute_deluxe (R) [integral_domain R] :
+  is_integrally_closed R ↔ ∀ (r s : R), s ≠ 0 → (∃ (n : ℕ) (f : ℕ → R) (hf : f 0 = 1), 
+  ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0) → s ∣ r :=
+begin
+  split,
+  intros h r s,
+  intro k,
+  unfold is_integrally_closed at h,
+  specialize h r s,
+  intro m,
+  apply h,
+  split,
+  exact k,
+  cases m with n m1,
+  cases m1 with f m2,
+  cases m2 with hf m3,
+  use n,
+  rw mwe_deluxe,
+  use f,
+  split,
+  exact hf,
+  exact m3,
+  exact k,
+  unfold is_integrally_closed,
+  intro H,
+  intros r s,
+  intro H2,
+  cases H2 with A B,
+  apply H,
+  exact A,
+  cases B with n B_n,
+  use n,
+  specialize H r s A,
+  rw mwe_deluxe at B_n,
+  exact B_n,
+  exact A,
+end
 
 
 lemma fundamental_theorem_integrally_closedness (R : Type u) (A : Type v) [integral_domain R] 
@@ -174,12 +203,7 @@ begin
   rw equiv_johan_absolute,
   intro H,
   sorry,
-  sorry,
 end
-
-
-
-
 
 
 -- class dedekind_domain (α : Type*) extends integral_domain α :=
