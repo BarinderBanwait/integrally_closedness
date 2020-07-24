@@ -7,6 +7,7 @@ import ring_theory.noetherian
 import ring_theory.integral_closure
 import ring_theory.adjoin
 import ring_theory.algebra
+import ring_theory.localization
 import linear_algebra.basic
 
 /-!
@@ -200,8 +201,9 @@ lemma fundamental_theorem_integrally_closedness (R : Type u) (A : Type v) [integ
   is_integrally_closed R ↔ is_integrally_closed_in R A :=
 begin
   split,
-  rw equiv_johan_absolute,
+  rw equiv_johan_absolute_deluxe,
   intro H,
+  sorry,
   sorry,
 end
 
