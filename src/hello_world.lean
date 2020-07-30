@@ -18,19 +18,18 @@ Let R ⊆ A be an extension of integral domains.
 ## Main definitions
 
 * `is_integrally_closed_in R A : Prop` is the assertion that `R` is integrally closed in `A`. It is
-   a structure, implemented as the predicate that all elements of `A` that are integral over `R` 
+   a structure, implemented as the predicate that all elements of `A` that are integral over `R`
    already belong to `R`.
 
 * `is_integrally_closed R` is the definition that `R` is integrally closed in an absolute sense.
-   This is implemented as the following implication: if for all `r` and `s` in `R` with `s ≠ 0`, 
-   `r^n ∈ ⟨ r^{n-1}s, ⋯ , s^n ⟩ 
+   This is implemented as the following implication: if for all `r` and `s` in `R` with `s ≠ 0`,
+   `r^n ∈ ⟨ r^{n-1}s, ⋯ , s^n ⟩
 
 
 ## Main statements
 
-* `this` is that lemma, in the following form:
-  if N is a finitely generated submodule of an ambient R-module M and I is an ideal of R
-  such that N ⊆ IN, then there exists r ∈ 1 + I such that rN = 0.
+* `fundamental_theorem_integrally_closedness` is the statement that an integral domain is integrally
+  closed if and only if it is integrall closed in a field of fractions.
 
 ## References
 
@@ -54,25 +53,25 @@ open function
 open finset
 open_locale big_operators
 
-structure is_integrally_closed_in (R : Type u) (A : Type v) [comm_ring R] [comm_ring A] 
-[algebra R A] : Prop := 
+structure is_integrally_closed_in (R : Type u) (A : Type v) [comm_ring R] [comm_ring A]
+[algebra R A] : Prop :=
 (inj : injective (algebra_map R A))
 (closed : ∀ (a : A), is_integral R a → ∃  r : R, algebra_map R A r = a)
 
--- def my_set (R) [integral_domain R] (r : R) (s : R) (n : ℕ) := 
+-- def my_set (R) [integral_domain R] (r : R) (s : R) (n : ℕ) :=
 -- { x | ∃ (i:ℕ ) (h : 0≤ i) (h2 :i≤ n-1), x = r^(n-1-i) *s^(i+1) }
 
-def my_set (R) [integral_domain R] (r : R) (s : R) (n : ℕ) := 
+def my_set (R) [integral_domain R] (r : R) (s : R) (n : ℕ) :=
 { x | ∃ (c : ℕ × ℕ) (hy: c ∈ (finset.nat.antidiagonal n).erase ⟨0, n⟩), x = r ^ c.2 * s ^ c.1 }
 
 def is_integrally_closed (R) [integral_domain R] : Prop :=
-∀ (r : R) (s : R), (s ≠ 0) ∧ (∃ n : ℕ , 
+∀ (r : R) (s : R), (s ≠ 0) ∧ (∃ n : ℕ ,
 r^n ∈ span R (my_set R r s n)) → s ∣ r
 
 open submodule
 
-lemma mwe (R) [integral_domain R] (n : ℕ) (f : ℕ → R) (hf : f 0 = 1) : ∀ ⦃r s : R⦄, s ≠ 0 → 
-  ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0 → 
+lemma mwe (R) [integral_domain R] (n : ℕ) (f : ℕ → R) (hf : f 0 = 1) : ∀ ⦃r s : R⦄, s ≠ 0 →
+  ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0 →
   r^n ∈ span R (my_set R r s n) :=
 begin
   intros r s,
@@ -129,18 +128,20 @@ begin
     exact set.mem_of_mem_of_subset x_in_my_set p_H,
   },
   rw mul_assoc,
-  exact p.smul_mem (f c.fst) x_in_p,  
+  exact p.smul_mem (f c.fst) x_in_p,
 end
 
-lemma lin_comb_mem (R) [integral_domain R] (n : ℕ) (A r s : R) (s_non_zero : s ≠ 0) : A ∈ span R (my_set R r s n) → ∃ (f : ℕ → R) (h_f: f 0 = 1), 
+lemma lin_comb_mem (R) [integral_domain R] (n : ℕ) (r s : R) (s_non_zero : s ≠ 0) :
+  r^n ∈ span R (my_set R r s n) → ∃ (f : ℕ → R) (h_f: f 0 = 1),
   ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0 :=
 begin
-  -- started this in sandbox.lean, take a look there
+  intro H,
+  -- trying finsupp.mem_span_iff_total but it just isn't working :(
   sorry,
 end
 
 
-lemma mwe_deluxe (R) [integral_domain R] (n : ℕ) {r s : R} (h_s : s ≠ 0) : 
+lemma mwe_deluxe (R) [integral_domain R] (n : ℕ) {r s : R} (h_s : s ≠ 0) :
   r^n ∈ span R (my_set R r s n) ↔ ∃ (f : ℕ → R) (hf : f 0 = 1), ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0 :=
 begin
   split,
@@ -158,7 +159,7 @@ begin
 end
 
 lemma equiv_johan_absolute_deluxe (R) [integral_domain R] :
-  is_integrally_closed R ↔ ∀ (r s : R), s ≠ 0 → (∃ (n : ℕ) (f : ℕ → R) (hf : f 0 = 1), 
+  is_integrally_closed R ↔ ∀ (r s : R), s ≠ 0 → (∃ (n : ℕ) (f : ℕ → R) (hf : f 0 = 1),
   ∑ ij in finset.nat.antidiagonal n, f ij.1 * r ^ ij.2 * s ^ ij.1 = 0) → s ∣ r :=
 begin
   split,
@@ -196,7 +197,7 @@ begin
 end
 
 
-lemma fundamental_theorem_integrally_closedness (R : Type u) (A : Type v) [integral_domain R] 
+lemma fundamental_theorem_integrally_closedness (R : Type u) (A : Type v) [integral_domain R]
 [comm_ring A] [algebra R A] (H : fraction_map R A):
   is_integrally_closed R ↔ is_integrally_closed_in R A :=
 begin
